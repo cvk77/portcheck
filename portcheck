@@ -1,0 +1,55 @@
+#!/usr/bin/perl -w
+
+use strict;
+use IO::Socket::INET;
+use IO::Socket;
+use Getopt::Long;
+use Term::ANSIColor
+
+$| = 1;
+my $errs = 0;
+my $timeout = 2;
+my $port = 389;
+
+GetOptions ("timeout=i" => \$timeout,
+            "port=i"    => \$port);
+
+while (<>) {
+
+	my $hostname = $_ or die("Missing input\n");
+	chomp $hostname;
+
+	my @host = gethostbyname($hostname);
+	my ($name, $aliases, $addrtype, $length, @packed_ips) = @host;
+
+	print color('bold yellow');
+	print "Host: $name:$port\n";
+	print color('reset');
+	
+	foreach my $packed_ip (@packed_ips) {
+		my $ip = inet_ntoa($packed_ip);
+		
+		print color('reset');
+		printf("%-15s", $ip);
+
+		my $socket = new IO::Socket::INET(
+			PeerHost => $ip,
+			PeerPort => $port,
+			Proto => 'tcp',
+			Timeout => $timeout
+		);
+
+		if ($socket) {
+			print color('bold green');
+			print "[OK]\n";
+		} else {
+			$errs++;
+			print color('bold red');
+			print "[EE]\n";
+		}
+		print color('reset');
+	}
+	print "\n";
+}
+
+exit $errs;
