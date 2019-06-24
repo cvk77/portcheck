@@ -4,15 +4,20 @@ use strict;
 use IO::Socket::INET;
 use IO::Socket;
 use Getopt::Long;
+use Pod::Usage;
 use Term::ANSIColor
 
 $| = 1;
 my $errs = 0;
 my $timeout = 2;
 my $port = 389;
+my $help = 0;
 
 GetOptions ("timeout=i" => \$timeout,
-            "port=i"    => \$port);
+            "port=i"    => \$port,
+            "help|?"    => \$help) or pod2usage(1);
+
+pod2usage(0) if $help;
 
 while (<>) {
 
@@ -53,3 +58,35 @@ while (<>) {
 }
 
 exit $errs;
+
+__END__
+
+=head1 NAME
+
+portcheck - Quick and dirty portchecker
+
+=head1 SYNOPSIS
+
+        portcheck [OPTIONS]
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Print a brief help message and exit.
+
+=item B<--timeout> n
+
+Connection timeout in seconds.
+Default: 2 seconds.
+
+=item B<--port> n
+
+Connection port. 
+Default: 389.
+
+=back
+
+=cut
